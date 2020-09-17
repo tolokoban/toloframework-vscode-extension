@@ -1,6 +1,5 @@
-# tolokoban-vscode-extension README
-
-This is the README for your extension "tolokoban-vscode-extension". After writing up a brief description, we recommend including the following sections.
+# tolokoban-vscode-extension
+Visual Studio Code extension to help coding React/Typescript applications.
 
 ## Features
 
