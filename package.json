@@ -2,7 +2,7 @@
 	"name": "tolokoban-vscode-extension",
 	"displayName": "Tolokoban VSCode Extension",
 	"description": "Tools to help working with React/Typescrip anf TFW.",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.49.0"
 	},
@@ -10,14 +10,104 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:tolokoban-vscode-extension.helloWorld"
+		"onCommand:tolokoban-vscode-extension.switchToCSS",
+		"onCommand:tolokoban-vscode-extension.switchToJS",
+		"onCommand:tolokoban-vscode-extension.switchToTS",
+		"onCommand:tolokoban-vscode-extension.switchToTSX",
+		"onCommand:tolokoban-vscode-extension.switchToJSON",
+		"onCommand:tolokoban-vscode-extension.switchToYAML",
+		"onCommand:tolokoban-vscode-extension.switchToFRAG",
+		"onCommand:tolokoban-vscode-extension.switchToVERT",
+		"onCommand:tolokoban-vscode-extension.compileTranslationYAML"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "tolokoban-vscode-extension.helloWorld",
-				"title": "Hello World"
+				"command": "tolokoban-vscode-extension.compileTranslationYAML",
+				"title": "[tfw] Compile YAML translations from current file"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToCSS",
+				"title": "[tfw] Switch to CSS"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToJS",
+				"title": "[tfw] Switch to JS"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToJSON",
+				"title": "[tfw] Switch to JSON"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToYAML",
+				"title": "[tfw] Switch to YAML"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToTS",
+				"title": "[tfw] Switch to TS"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToTSX",
+				"title": "[tfw] Switch to TSX"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToFRAG",
+				"title": "[tfw] Switch to FRAG"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToVERT",
+				"title": "[tfw] Switch to VERT"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "tolokoban-vscode-extension.switchToCSS",
+				"key": "ctrl+f12 c",
+				"mac": "cmd+f12 c",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToJS",
+				"key": "ctrl+f12 j",
+				"mac": "cmd+f12 j",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToJSON",
+				"key": "ctrl+f12 n",
+				"mac": "cmd+f12 n",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToYAML",
+				"key": "ctrl+f12 y",
+				"mac": "cmd+f12 y",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToTS",
+				"key": "ctrl+f12 t",
+				"mac": "cmd+f12 t",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToTSX",
+				"key": "ctrl+f12 x",
+				"mac": "cmd+f12 x",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToFRAG",
+				"key": "ctrl+f12 f",
+				"mac": "cmd+f12 f",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "tolokoban-vscode-extension.switchToVERT",
+				"key": "ctrl+f12 v",
+				"mac": "cmd+f12 v",
+				"when": "editorTextFocus"
 			}
 		]
 	},
