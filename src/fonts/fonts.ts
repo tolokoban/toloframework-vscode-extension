@@ -71,7 +71,7 @@ async function load() {
         if (FS.existsSync(fontClassFilename)) {
             FS.writeFileSync(
                 Path.resolve(path, "index.ts"),
-                `export { default } from '${fontName}'\n`
+                `export { default } from './${fontName}'\n`
             )
             const modFilename = Path.resolve(path, `${fontName}.ts`)
             FS.writeFileSync(

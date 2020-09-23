@@ -30,7 +30,7 @@
 		"commands": [
 			{
 				"command": "toloframework-vscode-extension.importFont",
-				"title": "[tfw] Load font files"
+				"title": "[tfw] Load font locally"
 			},
 			{
 				"command": "toloframework-vscode-extension.help",

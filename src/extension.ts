@@ -92,9 +92,9 @@ export function deactivate() { }
 
 
 const EXTENSION_FALLBACKS: { [key: string]: string[] } = {
-    tsx: ["ts", "js"],
-    ts: ["tsx", "js"],
-    js: ["ts", "tsx"],
+    tsx: ["jsx", "ts", "js"],
+    ts: ["tsx", "js", "jsx"],
+    js: ["jsx", "ts", "tsx"],
     json: ["jsn", "yaml", "yml"],
     yaml: ["yml", "json", "jsn"]
 }
