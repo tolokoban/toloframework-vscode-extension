@@ -1,9 +1,13 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import * as VSC from 'vscode'
 import * as YAML from 'yaml'
+import { YAMLError, YAMLSemanticError } from 'yaml/util'
 import Util from './util'
 
 export default { compileYAML }
+
+const DEFAULT_INDENTATION = "    "
+const NOT_FOUND = -1
 
 interface IYamlException {
     name: string
@@ -34,21 +38,39 @@ async function compileYAML() {
     const content = activeEditor.document.getText().replace("\t", "    ")
     let value: any = null
     try {
-        console.info(content)
-        value = YAML.parse(content)
+        value = YAML.parse(
+            content, {
+            indent: 4,
+            prettyErrors: true
+        }
+        )
     }
     catch (ex) {
-        console.error("ex", ex) // @TODO Remove this line written on 2020-09-18 at 12:05
-        VSC.window.showErrorMessage("This YAML file is invalid!")
-        if (isYamlException(ex)) {
-            VSC.window.showErrorMessage(ex.makePretty(), { modal: true })
+        console.error("================================================================================")
+        console.error(ex) // @TODO Remove this line written on 2020-09-18 at 12:05
+        let errorMessage = `Invalid YAML file!\n${ex}`
+        if (ex instanceof YAMLSemanticError) {
+            errorMessage = `YAML Semantic Error at line ${ex.linePos?.start.line
+                }!\n${ex.message
+                }\n`
         }
+        else if (ex instanceof YAMLError) {
+            errorMessage = `YAML Error!\n${ex.message}\n`
+        }
+        if (errorMessage.indexOf("cannot start with a tab character") !== NOT_FOUND) {
+            errorMessage += "\nTry to execute the following command from the palette:\n"
+            errorMessage += '"Convert indentation to spaces"'
+        }
+        VSC.window.showErrorMessage(
+            errorMessage,
+            { modal: true }
+        )
         return
     }
     const destination = Util.changeExtension(filename, "json")
     Util.writeTextFile(
         destination,
-        JSON.stringify(value, null, "  ")
+        JSON.stringify(value, null, DEFAULT_INDENTATION)
     )
     await Util.openFileInEditor(destination)
 }

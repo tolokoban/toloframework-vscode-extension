@@ -2,6 +2,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import * as VSC from 'vscode'
 import Util from './util'
+import Fonts from './fonts'
 import Translation from './translation'
 
 // this method is called when your extension is activated
@@ -23,7 +24,7 @@ export function activate(context: VSC.ExtensionContext) {
     ]
     for (const action of actions) {
         const [extension, viewColumn] = action
-        const id = `tolokoban-vscode-extension.switchTo${extension.toUpperCase()}`
+        const id = `toloframework-vscode-extension.switchTo${extension.toUpperCase()}`
         const disposable = VSC.commands.registerCommand(
             id,
             () => switchTo(extension, viewColumn)
@@ -33,8 +34,54 @@ export function activate(context: VSC.ExtensionContext) {
 
     context.subscriptions.push(
         VSC.commands.registerCommand(
-            "tolokoban-vscode-extension.compileTranslationYAML",
+            "toloframework-vscode-extension.compileTranslationYAML",
             Translation.compileYAML
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.importFont",
+            Fonts.load
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            'toloframework-vscode-extension.help',
+            () => {
+                const panel = VSC.window.createWebviewPanel(
+                    'help',
+                    'TFW Documentation',
+                    VSC.ViewColumn.Beside,
+                    {
+                        enableScripts: true,
+                        enableCommandUris: true
+                    }
+                )
+                panel.webview.html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body, iframe {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://tolokoban.github.io/tfw"></iframe>
+</body>
+</html>`
+            }
         )
     )
 }

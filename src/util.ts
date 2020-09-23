@@ -45,7 +45,7 @@ async function openTextDocument(filename: string):
 
 async function openFileInEditor(
     filename: string,
-    viewColumn: IViewColumn = IViewColumn.ACTIVE
+    viewColumn: VSC.ViewColumn = VSC.ViewColumn.Active
 ): Promise<boolean> {
     const doc = await openTextDocument(filename)
     if (!doc) return false
