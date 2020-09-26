@@ -110,7 +110,8 @@ function getCurrentURI(): X.Uri | undefined {
 const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g
 
 function isKebabCase(input: string): string {
-    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected! Minimum length is 2. Example: \"my-font\""
+    RX_KEBAB_CASE.lastIndex = -1
+    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"josefin-sans\")! Minimum length is 2."
 }
 
 async function loadContentFromURL(url: string): Promise<string> {

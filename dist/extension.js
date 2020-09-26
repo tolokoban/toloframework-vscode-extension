@@ -8674,7 +8674,8 @@ function getCurrentURI() {
 }
 const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g;
 function isKebabCase(input) {
-    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected! Minimum length is 2. Example: \"my-font\"";
+    RX_KEBAB_CASE.lastIndex = -1;
+    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"josefin-sans\")! Minimum length is 2.";
 }
 function loadContentFromURL(url) {
     return __awaiter(this, void 0, void 0, function* () {
