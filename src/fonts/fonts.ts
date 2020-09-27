@@ -6,7 +6,7 @@ import * as Path from 'path'
 import fetch from 'node-fetch'
 import Util from '../util'
 import Slicer from './slicer'
-import { SSL_OP_MICROSOFT_SESS_ID_BUG } from 'constants'
+import Inputs from '../inputs'
 
 export default {
     load
@@ -34,18 +34,11 @@ async function load() {
 
         const asyncLoadAll = loadAllFonts(cssContent)
 
-        const defaultUri: X.Uri | undefined = getCurrentURI()
-        const uris = await X.window.showOpenDialog({
-            defaultUri,
-            canSelectFiles: false,
-            canSelectFolders: true,
-            canSelectMany: false,
-            openLabel: "Select",
-            title: "Select a folder for the font"
-        })
-        if (!uris) return
-        const uri = uris[0]
-        const path = Path.resolve(uri.path, fontName)
+        const destination = await Inputs.selectFolder()
+        X.window.showInformationMessage(destination || "NULL")
+        if (!destination) return
+
+        const path = Path.resolve(destination, fontName)
         if (FS.existsSync(path)) {
             X.window.showErrorMessage(
                 `This directory already exists:\n${path}`,
@@ -118,7 +111,6 @@ async function loadContentFromURL(url: string): Promise<string> {
     try {
         const styleResponse = await fetch(url)
         const styleContent = await styleResponse.text()
-        console.log("styleContent", styleContent) // @TODO Remove this line written on 2020-09-23 at 12:04
         return styleContent
     } catch (ex) {
         throw `Unable to load from URL \"${url}\"!\n\n${ex}`
@@ -179,3 +171,4 @@ function getExtension(filename: string): string {
     if (dotIndex === NOT_FOUND) return ""
     return filename.substr(dotIndex + 1)
 }
+
