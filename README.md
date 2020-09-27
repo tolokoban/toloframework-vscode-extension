@@ -56,6 +56,14 @@ No known issues.
 
 ## Release Notes
 
+### 0.3.0
+
+Added a feature to create modules.
+
+### 0.2.0
+
+Added a feature to locally import CSS fonts.
+
 ### 0.1.0
 
 First release.

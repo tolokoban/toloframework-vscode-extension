@@ -10,6 +10,8 @@ export default {
     getBasename,
     getDirectory,
     getSourceFolder,
+    isKebabCase,
+    kebabCaseToPascalCase,
     openFileInEditor,
     openTextDocument,
     removeExtension,
@@ -132,3 +134,15 @@ function getSourceFolderFromActiveTextEditor(editor: X.TextEditor): string | nul
     return Path.dirname(packagePath)
 }
 
+const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g
+
+function isKebabCase(input: string): string {
+    RX_KEBAB_CASE.lastIndex = -1
+    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"wonder-woman\")! Minimum length is 2."
+}
+
+function kebabCaseToPascalCase(name: string): string {
+    return name.split("-")
+        .map(x => `${x.charAt(0).toUpperCase()}${x.substr(1).toLowerCase()}`)
+        .join("")
+}

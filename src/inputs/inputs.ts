@@ -9,7 +9,7 @@ export default {
     selectFolder
 }
 
-async function selectFolder(): Promise<string | null> {
+async function selectFolder(title = "Select a folder for the font"): Promise<string | null> {
     // tslint:disable-next-line: no-null-undefined-union
     return new Promise<string | null>((resolve, reject) => {
         const sourceFolder = Util.getSourceFolder()
@@ -27,7 +27,7 @@ async function selectFolder(): Promise<string | null> {
             }))
         const picker = X.window.createQuickPick<X.QuickPickItem>()
         picker.items = items
-        picker.title = "Select a folder for the font"
+        picker.title = title
         picker.onDidAccept(() => {
             resolve(selectedFolder)
             picker.dispose()

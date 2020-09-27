@@ -13,6 +13,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onCommand:toloframework-vscode-extension.createModule",
 		"onCommand:toloframework-vscode-extension.importFont",
 		"onCommand:toloframework-vscode-extension.help",
 		"onCommand:toloframework-vscode-extension.compileTranslationYAML",
@@ -28,6 +29,10 @@
 	"main": "./dist/extension",
 	"contributes": {
 		"commands": [
+			{
+				"command": "toloframework-vscode-extension.createModule",
+				"title": "[tfw] Create new Module"
+			},
 			{
 				"command": "toloframework-vscode-extension.importFont",
 				"title": "[tfw] Load font locally"
@@ -78,6 +83,12 @@
 			}
 		],
 		"keybindings": [
+			{
+				"command": "toloframework-vscode-extension.createModule",
+				"key": "ctrl+f12 shift-m",
+				"mac": "cmd+f12 shift-m",
+				"when": "editorTextFocus"
+			},
 			{
 				"command": "toloframework-vscode-extension.help",
 				"key": "ctrl+f12 f1",

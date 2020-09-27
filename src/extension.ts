@@ -3,6 +3,7 @@
 import * as VSC from 'vscode'
 import Util from './util'
 import Fonts from './fonts'
+import Module from './module'
 import Translation from './translation'
 
 // this method is called when your extension is activated
@@ -43,6 +44,13 @@ export function activate(context: VSC.ExtensionContext) {
         VSC.commands.registerCommand(
             "toloframework-vscode-extension.importFont",
             Fonts.load
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.createModule",
+            Module.exec
         )
     )
 

@@ -8438,6 +8438,7 @@ exports.deactivate = exports.activate = void 0;
 const VSC = __webpack_require__(/*! vscode */ "vscode");
 const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
 const fonts_1 = __webpack_require__(/*! ./fonts */ "./src/fonts/index.ts");
+const module_1 = __webpack_require__(/*! ./module */ "./src/module/index.ts");
 const translation_1 = __webpack_require__(/*! ./translation */ "./src/translation.ts");
 // this method is called when your extension is activated
 function activate(context) {
@@ -8464,6 +8465,7 @@ function activate(context) {
     }
     context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.compileTranslationYAML", translation_1.default.compileYAML));
     context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.importFont", fonts_1.default.load));
+    context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.createModule", module_1.default.exec));
     context.subscriptions.push(VSC.commands.registerCommand('toloframework-vscode-extension.help', () => {
         const panel = VSC.window.createWebviewPanel('help', 'TFW Documentation', VSC.ViewColumn.Beside, {
             enableScripts: true,
@@ -8579,7 +8581,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// tslint:disable: await-promise
 // tslint:disable: no-implicit-dependencies
 const X = __webpack_require__(/*! vscode */ "vscode");
 const FS = __webpack_require__(/*! fs */ "fs");
@@ -8605,7 +8606,7 @@ function load() {
             const fontName = yield X.window.showInputBox({
                 prompt: "Please enter the font family name.",
                 value: "noto",
-                validateInput: isKebabCase
+                validateInput: util_1.default.isKebabCase
             });
             if (!fontName)
                 return;
@@ -8664,11 +8665,6 @@ function getCurrentURI() {
     if (!folders)
         return undefined;
     return folders[0].uri;
-}
-const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g;
-function isKebabCase(input) {
-    RX_KEBAB_CASE.lastIndex = -1;
-    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"josefin-sans\")! Minimum length is 2.";
 }
 function loadContentFromURL(url) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -8848,7 +8844,7 @@ const util_1 = __webpack_require__(/*! ../util */ "./src/util.ts");
 exports.default = {
     selectFolder
 };
-function selectFolder() {
+function selectFolder(title = "Select a folder for the font") {
     return __awaiter(this, void 0, void 0, function* () {
         // tslint:disable-next-line: no-null-undefined-union
         return new Promise((resolve, reject) => {
@@ -8865,7 +8861,7 @@ function selectFolder() {
             }));
             const picker = X.window.createQuickPick();
             picker.items = items;
-            picker.title = "Select a folder for the font";
+            picker.title = title;
             picker.onDidAccept(() => {
                 resolve(selectedFolder);
                 picker.dispose();
@@ -8887,6 +8883,117 @@ function recursiveSearchForFolders(currentFolder, folders) {
             recursiveSearchForFolders(Path.resolve(currentFolder, dir.name), folders);
         }
     }
+}
+
+
+/***/ }),
+
+/***/ "./src/module/index.ts":
+/*!*****************************!*\
+  !*** ./src/module/index.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = void 0;
+var module_1 = __webpack_require__(/*! ./module */ "./src/module/module.ts");
+Object.defineProperty(exports, "default", { enumerable: true, get: function () { return module_1.default; } });
+
+
+/***/ }),
+
+/***/ "./src/module/module.ts":
+/*!******************************!*\
+  !*** ./src/module/module.ts ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const X = __webpack_require__(/*! vscode */ "vscode");
+const FS = __webpack_require__(/*! fs */ "fs");
+const Path = __webpack_require__(/*! path */ "path");
+const util_1 = __webpack_require__(/*! ../util */ "./src/util.ts");
+const inputs_1 = __webpack_require__(/*! ../inputs */ "./src/inputs/index.ts");
+exports.default = {
+    exec
+};
+function exec() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const folder = yield inputs_1.default.selectFolder("Root folder for your new module");
+        if (!folder)
+            return;
+        const folderName = Path.basename(folder);
+        let moduleName = yield X.window.showInputBox({
+            prompt: "Module's name",
+            validateInput: util_1.default.isKebabCase
+        });
+        if (!moduleName)
+            return;
+        const destinationFolder = Path.resolve(folder, moduleName);
+        if (util_1.default.exists(destinationFolder)) {
+            X.window.showErrorMessage(`This folder already exists!\n${destinationFolder}`, { modal: true });
+            return;
+        }
+        yield X.workspace.fs.createDirectory(X.Uri.file(destinationFolder));
+        if (folderName !== 'src') {
+            const moduleSuffix = yield X.window.showInputBox({
+                prompt: "Module's name suffix (press ESC if you don't want any)",
+                value: folderName,
+                validateInput: util_1.default.isKebabCase
+            });
+            if (moduleSuffix) {
+                moduleName += `-${moduleSuffix.trim()}`;
+            }
+        }
+        const save = writeFile.bind(null, destinationFolder);
+        save("index.ts", `export { default } from './${moduleName}'\n`);
+        save(`${moduleName}.ts`, getModuleContent());
+        save(`${moduleName}.test.ts`, getTestContent(moduleName));
+        const fileToOpen = Path.resolve(folder, `${moduleName}.ts`);
+        console.log("fileToOpen = ", fileToOpen); // @TODO Remove this line written on 2020-09-27 at 19:48
+        yield util_1.default.openFileInEditor(fileToOpen);
+    });
+}
+function writeFile(folder, filename, content) {
+    const path = Path.resolve(folder, filename);
+    try {
+        FS.writeFileSync(path, content);
+    }
+    catch (ex) {
+        console.error("Unable to write file: ", path);
+        console.error(ex);
+        X.window.showErrorMessage(`${ex}`);
+    }
+}
+function getModuleContent() {
+    return `export default { exec }
+
+function exec() {}
+`;
+}
+function getTestContent(moduleName) {
+    const pascalName = util_1.default.kebabCaseToPascalCase(moduleName);
+    return `import ${pascalName} from './${moduleName}'
+
+describe("Module ${moduleName}", () => {
+    // @TODO Write tests for module ${moduleName}
+})
+`;
 }
 
 
@@ -9005,6 +9112,8 @@ exports.default = {
     getBasename,
     getDirectory,
     getSourceFolder,
+    isKebabCase,
+    kebabCaseToPascalCase,
     openFileInEditor,
     openTextDocument,
     removeExtension,
@@ -9104,6 +9213,16 @@ function getSourceFolderFromActiveTextEditor(editor) {
     if (exists(sourcePath))
         return sourcePath;
     return Path.dirname(packagePath);
+}
+const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g;
+function isKebabCase(input) {
+    RX_KEBAB_CASE.lastIndex = -1;
+    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"wonder-woman\")! Minimum length is 2.";
+}
+function kebabCaseToPascalCase(name) {
+    return name.split("-")
+        .map(x => `${x.charAt(0).toUpperCase()}${x.substr(1).toLowerCase()}`)
+        .join("");
 }
 
 
