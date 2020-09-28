@@ -5,7 +5,7 @@
 	"repository": "https://github.com/tolokoban/toloframework-vscode-extension",
 	"displayName": "ToloFrameWork (TFW) VSCode Extension",
 	"description": "Tools to help working with React/Typescrip anf TFW.",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"engines": {
 		"vscode": "^1.49.0"
 	},
