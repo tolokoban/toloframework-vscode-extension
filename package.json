@@ -4,16 +4,17 @@
 	"author": "tolokoban",
 	"repository": "https://github.com/tolokoban/toloframework-vscode-extension",
 	"displayName": "ToloFrameWork (TFW) VSCode Extension",
-	"description": "Tools to help working with React/Typescrip anf TFW.",
-	"version": "0.3.0",
+	"description": "Tools to help working fast with React/Typescrip and TFW.",
+	"version": "0.4.0",
 	"engines": {
-		"vscode": "^1.49.0"
+		"vscode": "^1.50.0"
 	},
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
 		"onCommand:toloframework-vscode-extension.createModule",
+		"onCommand:toloframework-vscode-extension.createView",
 		"onCommand:toloframework-vscode-extension.importFont",
 		"onCommand:toloframework-vscode-extension.help",
 		"onCommand:toloframework-vscode-extension.compileTranslationYAML",
@@ -31,7 +32,11 @@
 		"commands": [
 			{
 				"command": "toloframework-vscode-extension.createModule",
-				"title": "[tfw] Create new Module"
+				"title": "[tfw] Create new MODULE"
+			},
+			{
+				"command": "toloframework-vscode-extension.createView",
+				"title": "[tfw] Create new VIEW"
 			},
 			{
 				"command": "toloframework-vscode-extension.importFont",
@@ -87,6 +92,12 @@
 				"command": "toloframework-vscode-extension.createModule",
 				"key": "ctrl+f12 shift-m",
 				"mac": "cmd+f12 shift-m",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "toloframework-vscode-extension.createView",
+				"key": "ctrl+f12 shift-v",
+				"mac": "cmd+f12 shift-v",
 				"when": "editorTextFocus"
 			},
 			{

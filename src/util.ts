@@ -11,7 +11,9 @@ export default {
     getDirectory,
     getSourceFolder,
     isKebabCase,
+    kebabCaseToLowerPascalCase,
     kebabCaseToPascalCase,
+    makeRelativeToSource,
     openFileInEditor,
     openTextDocument,
     removeExtension,
@@ -134,6 +136,14 @@ function getSourceFolderFromActiveTextEditor(editor: X.TextEditor): string | nul
     return Path.dirname(packagePath)
 }
 
+/**
+ * Return a path relative to "src/".
+ * @param path Absolute path
+ */
+function makeRelativeToSource(path: string): string {
+    return Path.relative(getSourceFolder() ?? '/', path)
+}
+
 const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g
 
 function isKebabCase(input: string): string {
@@ -145,4 +155,9 @@ function kebabCaseToPascalCase(name: string): string {
     return name.split("-")
         .map(x => `${x.charAt(0).toUpperCase()}${x.substr(1).toLowerCase()}`)
         .join("")
+}
+
+function kebabCaseToLowerPascalCase(name: string): string {
+    const pascal = kebabCaseToPascalCase(name)
+    return pascal.charAt(0).toLowerCase() + pascal.substr(1)
 }

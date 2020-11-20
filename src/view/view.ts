@@ -3,21 +3,23 @@ import * as FS from "fs"
 import * as Path from "path"
 import Util from '../util'
 import Inputs from '../inputs'
+import TplView from './tpl/view'
+import TplStyle from './tpl/style'
+import TplTester from './tpl/tester'
+import TplContainer from './tpl/container'
 
 export default {
     exec
 }
 
 async function exec() {
-    const folder = await Inputs.selectFolder("Root folder for your new module")
+    const folder = await Inputs.selectFolder("Root folder for your new VIEW")
     if (!folder) return
+    const relativeFolder = Util.makeRelativeToSource(folder)
     const folderName = Path.basename(folder)
-    let moduleName = await X.window.showInputBox({
-        prompt: "Module's name",
-        validateInput: Util.isKebabCase
-    })
-    if (!moduleName) return
-    const destinationFolder = Path.resolve(folder, moduleName)
+    let viewName = await Inputs.promptForName("View's filename:")
+    if (!viewName) return
+    const destinationFolder = Path.resolve(folder, viewName)
     if (Util.exists(destinationFolder)) {
         X.window.showErrorMessage(
             `This folder already exists!\n${destinationFolder}`,
@@ -29,21 +31,24 @@ async function exec() {
 
     if (folderName !== 'src') {
         const moduleSuffix = await X.window.showInputBox({
-            prompt: "Module's name suffix (press ESC if you don't want any)",
+            prompt: "View's name suffix (press ESC if you don't want any)",
             value: folderName,
             validateInput: Util.isKebabCase
         })
         if (moduleSuffix) {
-            moduleName += `-${moduleSuffix.trim()}`
+            viewName += `-${moduleSuffix.trim()}`
         }
     }
 
     const save = writeFile.bind(null, destinationFolder)
-    save("index.ts", `export { default } from './${moduleName}'\n`)
-    save(`${moduleName}.ts`, getModuleContent())
-    save(`${moduleName}.test.ts`, getTestContent(moduleName))
+    save("index.ts", `export { default } from './${viewName}'\n// export { default } from './${viewName}.container'\n`)
+    save(`${viewName}.yaml`, `en:\n    ok: OK\nfr:\n    ok: Valider\n`)
+    save(`${viewName}.tsx`, TplView(viewName, relativeFolder))
+    save(`${viewName}.css`, TplStyle(viewName, relativeFolder))
+    save(`${viewName}.test.tsx`, TplTester(viewName, relativeFolder))
+    save(`${viewName}.container.tsx`, TplContainer(viewName, relativeFolder))
 
-    const fileToOpen = Path.resolve(folder, `${moduleName}.ts`)
+    const fileToOpen = Path.resolve(destinationFolder, `${viewName}.tsx`)
     await Util.openFileInEditor(fileToOpen)
 }
 
@@ -57,21 +62,4 @@ function writeFile(folder: string, filename: string, content: string) {
         console.error(ex)
         X.window.showErrorMessage(`${ex}`)
     }
-}
-
-function getModuleContent(): string {
-    return `export default { exec }
-
-function exec() {}
-`
-}
-
-function getTestContent(moduleName: string): string {
-    const pascalName = Util.kebabCaseToPascalCase(moduleName)
-    return `import ${pascalName} from './${moduleName}'
-
-describe("Module ${moduleName}", () => {
-    // @TODO Write tests for module ${moduleName}
-})
-`
 }

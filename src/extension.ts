@@ -2,6 +2,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import * as VSC from 'vscode'
 import Util from './util'
+import View from './view'
 import Fonts from './fonts'
 import Module from './module'
 import Translation from './translation'
@@ -51,6 +52,13 @@ export function activate(context: VSC.ExtensionContext) {
         VSC.commands.registerCommand(
             "toloframework-vscode-extension.createModule",
             Module.exec
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.createView",
+            View.exec
         )
     )
 

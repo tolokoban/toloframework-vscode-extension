@@ -8437,6 +8437,7 @@ exports.deactivate = exports.activate = void 0;
 // tslint:disable-next-line: no-implicit-dependencies
 const VSC = __webpack_require__(/*! vscode */ "vscode");
 const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
+const view_1 = __webpack_require__(/*! ./view */ "./src/view/index.ts");
 const fonts_1 = __webpack_require__(/*! ./fonts */ "./src/fonts/index.ts");
 const module_1 = __webpack_require__(/*! ./module */ "./src/module/index.ts");
 const translation_1 = __webpack_require__(/*! ./translation */ "./src/translation.ts");
@@ -8466,6 +8467,7 @@ function activate(context) {
     context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.compileTranslationYAML", translation_1.default.compileYAML));
     context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.importFont", fonts_1.default.load));
     context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.createModule", module_1.default.exec));
+    context.subscriptions.push(VSC.commands.registerCommand("toloframework-vscode-extension.createView", view_1.default.exec));
     context.subscriptions.push(VSC.commands.registerCommand('toloframework-vscode-extension.help', () => {
         const panel = VSC.window.createWebviewPanel('help', 'TFW Documentation', VSC.ViewColumn.Beside, {
             enableScripts: true,
@@ -8842,8 +8844,16 @@ const Path = __webpack_require__(/*! path */ "path");
 const FS = __webpack_require__(/*! fs */ "fs");
 const util_1 = __webpack_require__(/*! ../util */ "./src/util.ts");
 exports.default = {
+    promptForName,
     selectFolder
 };
+function promptForName(prompt) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return X.window.showInputBox({
+            prompt, validateInput: util_1.default.isKebabCase
+        });
+    });
+}
 function selectFolder(title = "Select a folder for the font") {
     return __awaiter(this, void 0, void 0, function* () {
         // tslint:disable-next-line: no-null-undefined-union
@@ -8965,7 +8975,6 @@ function exec() {
         save(`${moduleName}.ts`, getModuleContent());
         save(`${moduleName}.test.ts`, getTestContent(moduleName));
         const fileToOpen = Path.resolve(folder, `${moduleName}.ts`);
-        console.log("fileToOpen = ", fileToOpen); // @TODO Remove this line written on 2020-09-27 at 19:48
         yield util_1.default.openFileInEditor(fileToOpen);
     });
 }
@@ -9113,7 +9122,9 @@ exports.default = {
     getDirectory,
     getSourceFolder,
     isKebabCase,
+    kebabCaseToLowerPascalCase,
     kebabCaseToPascalCase,
+    makeRelativeToSource,
     openFileInEditor,
     openTextDocument,
     removeExtension,
@@ -9214,6 +9225,14 @@ function getSourceFolderFromActiveTextEditor(editor) {
         return sourcePath;
     return Path.dirname(packagePath);
 }
+/**
+ * Return a path relative to "src/".
+ * @param path Absolute path
+ */
+function makeRelativeToSource(path) {
+    var _a;
+    return Path.relative((_a = getSourceFolder()) !== null && _a !== void 0 ? _a : '/', path);
+}
 const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g;
 function isKebabCase(input) {
     RX_KEBAB_CASE.lastIndex = -1;
@@ -9223,6 +9242,295 @@ function kebabCaseToPascalCase(name) {
     return name.split("-")
         .map(x => `${x.charAt(0).toUpperCase()}${x.substr(1).toLowerCase()}`)
         .join("");
+}
+function kebabCaseToLowerPascalCase(name) {
+    const pascal = kebabCaseToPascalCase(name);
+    return pascal.charAt(0).toLowerCase() + pascal.substr(1);
+}
+
+
+/***/ }),
+
+/***/ "./src/view/index.ts":
+/*!***************************!*\
+  !*** ./src/view/index.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = void 0;
+var view_1 = __webpack_require__(/*! ./view */ "./src/view/view.ts");
+Object.defineProperty(exports, "default", { enumerable: true, get: function () { return view_1.default; } });
+
+
+/***/ }),
+
+/***/ "./src/view/tpl/container.ts":
+/*!***********************************!*\
+  !*** ./src/view/tpl/container.ts ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = __webpack_require__(/*! ../../util */ "./src/util.ts");
+function default_1(filename, folder) {
+    const viewname = util_1.default.kebabCaseToPascalCase(filename);
+    const back = folder.split("/")
+        .map(x => "..")
+        .join("/");
+    return `import { connect } from 'react-redux'
+import ${viewname}, { I${viewname}Props } from './${filename}'
+import { IAppState, IAction } from '${back}/../types'
+
+function mapStateToProps(
+    state: IAppState,
+    props: Partial<I${viewname}Props>
+): I${viewname}Props {
+    return { ...props }
+}
+
+function mapDispatchToProps(
+    dispatch: (action: IAction) => void,
+    props: Partial<I${viewname}Props>
+) {
+    // @see https://redux.js.org/basics/usage-with-react/#implementing-container-components
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(${viewname})
+`;
+}
+exports.default = default_1;
+
+
+/***/ }),
+
+/***/ "./src/view/tpl/style.ts":
+/*!*******************************!*\
+  !*** ./src/view/tpl/style.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = __webpack_require__(/*! ../../util */ "./src/util.ts");
+function default_1(filename, folder) {
+    const viewname = util_1.default.kebabCaseToPascalCase(filename);
+    const className = `${folder.split("/").map(util_1.default.kebabCaseToLowerPascalCase).join("-")}-${viewname}`;
+    return `.${className} {}\n`;
+}
+exports.default = default_1;
+
+
+/***/ }),
+
+/***/ "./src/view/tpl/tester.ts":
+/*!********************************!*\
+  !*** ./src/view/tpl/tester.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = __webpack_require__(/*! ../../util */ "./src/util.ts");
+function default_1(filename, folder) {
+    const viewname = util_1.default.kebabCaseToPascalCase(filename);
+    return `// To test a React component, you need to install few modules:
+// yarn add --dev @types/jest @testing-library/react @testing-library/jest-dom jest ts-jest
+// @see https://github.com/testing-library/react-testing-library
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import ${viewname}, { I${viewname}Props } from './${filename}'
+
+function view(partialProps: Partial<I${viewname}Props>): EventBag {
+    const bag = new EventBag()
+    const props: I${viewname}Props = {
+        // @TODO Set default props.
+        ...partialProps
+    }
+    render(<${viewname}
+        {...props}
+        onChange={bag.on("onChange")}
+    />)
+    return bag
+}
+
+describe('<${viewname}/> in ${folder}', () => {
+    it('should render without crashing', () => {
+        view({})
+        // expect(screen.getByText(/Search:?/)).toBeInTheDocument()
+        // screen.debug()
+    })
+})
+
+/**
+ * Use this class to keep track on events fireing.
+ */
+class EventBag {
+    private mapFiredEvents = new Map<string, Array<any[]>>()
+
+    on(eventName: string) {
+        return (...args: any[]) => {
+            const { mapFiredEvents } = this
+            if (mapFiredEvents.has(eventName)) {
+                const arr = mapFiredEvents.get(eventName)
+                app.push(args)
+            } else {
+                mapFiredEvents.set(eventName, [args])
+            }
+        }
+    }
+
+    get(eventName: string): any[] {
+        const { mapFiredEvents } = this
+        if (mapFiredEvents.has(eventName)) {
+            return mapFiredEvents.get(eventName)
+        }
+        return []
+    }
+}
+`;
+}
+exports.default = default_1;
+
+
+/***/ }),
+
+/***/ "./src/view/tpl/view.ts":
+/*!******************************!*\
+  !*** ./src/view/tpl/view.ts ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = __webpack_require__(/*! ../../util */ "./src/util.ts");
+function default_1(filename, folder) {
+    const viewname = util_1.default.kebabCaseToPascalCase(filename);
+    const className = `${folder.split("/").map(util_1.default.kebabCaseToLowerPascalCase).join("-")}-${viewname}`;
+    return `import * as React from "react"
+import Tfw from 'tfw'
+
+import './${filename}.css'
+
+// const _ = Tfw.Intl.make(require('./${filename}.json'))
+
+export interface I${viewname}Props {
+    className?: string
+}
+
+// tslint:disable-next-line: no-empty-interface
+interface I${viewname}State {}
+
+export default class ${viewname} extends React.Component<I${viewname}Props, I${viewname}State> {
+    state: I${viewname}State = {}
+
+    render() {
+        const classNames = ['custom', '${className}']
+        if (typeof this.props.className === 'string') {
+            classNames.push(this.props.className)
+        }
+
+        return <div className={classNames.join(" ")}>
+        </div>
+    }
+}
+`;
+}
+exports.default = default_1;
+
+
+/***/ }),
+
+/***/ "./src/view/view.ts":
+/*!**************************!*\
+  !*** ./src/view/view.ts ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const X = __webpack_require__(/*! vscode */ "vscode");
+const FS = __webpack_require__(/*! fs */ "fs");
+const Path = __webpack_require__(/*! path */ "path");
+const util_1 = __webpack_require__(/*! ../util */ "./src/util.ts");
+const inputs_1 = __webpack_require__(/*! ../inputs */ "./src/inputs/index.ts");
+const view_1 = __webpack_require__(/*! ./tpl/view */ "./src/view/tpl/view.ts");
+const style_1 = __webpack_require__(/*! ./tpl/style */ "./src/view/tpl/style.ts");
+const tester_1 = __webpack_require__(/*! ./tpl/tester */ "./src/view/tpl/tester.ts");
+const container_1 = __webpack_require__(/*! ./tpl/container */ "./src/view/tpl/container.ts");
+exports.default = {
+    exec
+};
+function exec() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const folder = yield inputs_1.default.selectFolder("Root folder for your new VIEW");
+        if (!folder)
+            return;
+        const relativeFolder = util_1.default.makeRelativeToSource(folder);
+        const folderName = Path.basename(folder);
+        let viewName = yield inputs_1.default.promptForName("View's filename:");
+        if (!viewName)
+            return;
+        const destinationFolder = Path.resolve(folder, viewName);
+        if (util_1.default.exists(destinationFolder)) {
+            X.window.showErrorMessage(`This folder already exists!\n${destinationFolder}`, { modal: true });
+            return;
+        }
+        yield X.workspace.fs.createDirectory(X.Uri.file(destinationFolder));
+        if (folderName !== 'src') {
+            const moduleSuffix = yield X.window.showInputBox({
+                prompt: "View's name suffix (press ESC if you don't want any)",
+                value: folderName,
+                validateInput: util_1.default.isKebabCase
+            });
+            if (moduleSuffix) {
+                viewName += `-${moduleSuffix.trim()}`;
+            }
+        }
+        const save = writeFile.bind(null, destinationFolder);
+        save("index.ts", `export { default } from './${viewName}'\n// export { default } from './${viewName}.container'\n`);
+        save(`${viewName}.yaml`, `en:\n    ok: OK\nfr:\n    ok: Valider\n`);
+        save(`${viewName}.tsx`, view_1.default(viewName, relativeFolder));
+        save(`${viewName}.css`, style_1.default(viewName, relativeFolder));
+        save(`${viewName}.test.tsx`, tester_1.default(viewName, relativeFolder));
+        save(`${viewName}.container.tsx`, container_1.default(viewName, relativeFolder));
+        const fileToOpen = Path.resolve(destinationFolder, `${viewName}.tsx`);
+        yield util_1.default.openFileInEditor(fileToOpen);
+    });
+}
+function writeFile(folder, filename, content) {
+    const path = Path.resolve(folder, filename);
+    try {
+        FS.writeFileSync(path, content);
+    }
+    catch (ex) {
+        console.error("Unable to write file: ", path);
+        console.error(ex);
+        X.window.showErrorMessage(`${ex}`);
+    }
 }
 
 

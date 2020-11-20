@@ -6,7 +6,14 @@ import Util from '../util'
 
 
 export default {
+    promptForName,
     selectFolder
+}
+
+async function promptForName(prompt: string): Promise<string | undefined> {
+    return X.window.showInputBox({
+        prompt, validateInput: Util.isKebabCase
+    })
 }
 
 async function selectFolder(title = "Select a folder for the font"): Promise<string | null> {
