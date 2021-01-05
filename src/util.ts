@@ -6,6 +6,7 @@ import Path = require("path")
 export default {
     changeExtension,
     exists,
+    fileNameToModuleName,
     findFilenameInAncestors,
     getBasename,
     getDirectory,
@@ -33,6 +34,10 @@ function changeExtension(filename: string, newExtension: string): string {
 
 function exists(path: string): boolean {
     return FS.existsSync(path)
+}
+
+function fileNameToModuleName(filename: string): string {
+    return kebabCaseToPascalCase(removeExtension(getBasename(filename)))
 }
 
 async function openTextDocument(filename: string):
@@ -69,7 +74,7 @@ function removeExtension(filename: string): string {
 
 function getBasename(filename: string): string {
     const idxSlash = filename.lastIndexOf("/")
-    return filename.substring(idxSlash)
+    return filename.substring(idxSlash + 1)
 }
 
 function getDirectory(filename: string): string {

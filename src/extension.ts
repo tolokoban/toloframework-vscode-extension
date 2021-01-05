@@ -5,6 +5,7 @@ import Util from './util'
 import View from './view'
 import Fonts from './fonts'
 import Module from './module'
+import Template from './template'
 import Translation from './translation'
 
 // this method is called when your extension is activated
@@ -14,11 +15,11 @@ export function activate(context: VSC.ExtensionContext) {
     // The commandId parameter must match the command field in package.json
     const LEFT = 1
     const RIGHT = 2
+    // Define where to open a window when switching.
     const actions: Array<[string, number]> = [
         ["css", RIGHT],
         ["js", LEFT],
-        ["ts", LEFT],
-        ["tsx", LEFT],
+        ["test", RIGHT],
         ["json", RIGHT],
         ["yaml", RIGHT],
         ["frag", LEFT],
@@ -52,6 +53,13 @@ export function activate(context: VSC.ExtensionContext) {
         VSC.commands.registerCommand(
             "toloframework-vscode-extension.createModule",
             Module.exec
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.createFromTemplate",
+            Template.exec
         )
     )
 
@@ -108,28 +116,33 @@ export function deactivate() { }
 
 
 const EXTENSION_FALLBACKS: { [key: string]: string[] } = {
-    tsx: ["jsx", "ts", "js"],
-    ts: ["tsx", "js", "jsx"],
-    js: ["jsx", "ts", "tsx"],
-    json: ["jsn", "yaml", "yml"],
-    yaml: ["yml", "json", "jsn"]
+    js: ["ts", "tsx", "js", "jsx"],
+    json: ["json", "jsn", "yaml", "yml"],
+    yaml: ["yaml", "yml", "json", "jsn"]
 }
 async function switchTo(extension: string, viewColumn: number) {
+    console.log("[switchTo()] extension = ", extension) // @FIXME: Remove this line written on 2021-01-05 at 11:34
     const activeEditor = VSC.window.activeTextEditor
     if (!activeEditor) {
         VSC.window.showErrorMessage("No active text editor!")
         return
     }
 
-    if (await openFileIfExists(extension, viewColumn, activeEditor)) return
+    const extensions: string[] = getExtensionsToCheck(extension, activeEditor)
+    console.log("[switchTo()] extensions = ", extensions) // @FIXME: Remove this line written on 2021-01-05 at 11:36
+    if (await openFileIfExists(extensions, viewColumn, activeEditor)) return
 
     // File does not exist.
     // We need to create it.
+    const [preferedExtension] = extensions
     const filename: string = Util.changeExtension(
         activeEditor.document.fileName,
-        extension
+        preferedExtension
     )
-    Util.writeTextFile(filename, getInitialContent(extension, activeEditor.document.fileName))
+    Util.writeTextFile(
+        filename,
+        getInitialContent(preferedExtension, activeEditor.document.fileName)
+    )
     const doc = await Util.openTextDocument(filename)
     if (doc !== null) {
         VSC.window.showTextDocument(doc, { viewColumn })
@@ -141,16 +154,10 @@ async function switchTo(extension: string, viewColumn: number) {
 }
 
 async function openFileIfExists(
-    extension: string,
+    extensions: string[],
     viewColumn: number,
     activeEditor: VSC.TextEditor
 ) {
-    const extensions: string[] = [extension]
-    const fallbacks = EXTENSION_FALLBACKS[extension]
-    if (Array.isArray(fallbacks)) {
-        extensions.push(...fallbacks)
-    }
-
     for (const ext of extensions) {
         const filename: string = Util.changeExtension(
             activeEditor.document.fileName,
@@ -167,13 +174,116 @@ async function openFileIfExists(
     return false
 }
 
+function getExtensionsToCheck(extension: string, activeEditor: VSC.TextEditor): string[] {
+    if (extension !== 'test') {
+        return EXTENSION_FALLBACKS[extension] ?? [extension]
+    }
+
+    const moduleExtensions = EXTENSION_FALLBACKS["js"]
+    for (const modExt of moduleExtensions) {
+        const filename: string = Util.changeExtension(
+            activeEditor.document.fileName,
+            modExt
+        )
+        if (Util.exists(filename)) {
+            return [`test.${modExt}`, `spec.${modExt}`]
+        }
+    }
+
+    const fallbacks: string[] = []
+    for (const modExt of moduleExtensions) {
+        fallbacks.push(`test.${modExt}`, `spec.${modExt}`)
+    }
+
+    return fallbacks
+}
+
 function getInitialContent(extension: string, originFileName: string) {
+    if (extension.startsWith("test.") || extension.startsWith("spec.")) {
+        return getInitialContentTest(originFileName)
+    }
     switch (extension) {
         case "yaml": return getInitialContentYAML(originFileName)
+        case "frag": return getInitialContentFRAG(originFileName)
+        case "vert": return getInitialContentVERT(originFileName)
     }
     return ""
 }
 
+function getInitialContentVERT(path: string) {
+    const filename = Util.removeExtension(Util.makeRelativeToSource(path))
+
+    return `// ${filename}.vert
+attribute vec4 attPoint;
+
+void main() {
+    gl_Position = attPoint;
+}`
+}
+
+function getInitialContentFRAG(path: string) {
+    const filename = Util.removeExtension(Util.makeRelativeToSource(path))
+
+    return `// ${filename}.frag
+precision mediump float;
+
+void main() {
+    gl_FragColor = vec4(1.0, 0.5, 0.0, 1.0);
+}`
+}
+
 function getInitialContentYAML(originFileName: string) {
     return "en:\n    cancel: Cancel\n    ok: Ok\nfr:\n    cancel: Annuler\n    ok: Valider\n"
+}
+
+function getInitialContentTest(originFileName: string) {
+    if (originFileName.endsWith("x")) return getInitialContentTestView(originFileName)
+
+    const modName = Util.fileNameToModuleName(originFileName)
+    const filename = Util.removeExtension(Util.getBasename(originFileName))
+    return `import ${modName} from './${filename}'
+
+describe('${Util.makeRelativeToSource(originFileName)}', () => {
+    // @TODO: Implement tests.
+    describe('${modName}.foo()', () => {
+        it('should ...', () => {
+            const got = ${modName}.foo()
+            const exp = null
+            expect(got).toEqual(exp)
+        })
+    })
+})
+`
+}
+
+function getInitialContentTestView(originFileName: string) {
+    const viewname = Util.fileNameToModuleName(originFileName)
+    const filename = Util.removeExtension(Util.getBasename(originFileName))
+    const folder = Util.getDirectory(Util.makeRelativeToSource(originFileName))
+
+    return `// To test a React component, you need to install these modules:
+// yarn add --dev react-test-renderer @types/react-test-renderer
+// @see https://jestjs.io/docs/en/snapshot-testing
+//
+// If a test failed because you intended to improve the component, just call
+// jest --updateSnapshot testNamePattern "${Util.makeRelativeToSource(originFileName)}"
+
+import React from 'react'
+import Renderer from 'react-test-renderer'
+import ${viewname}, { I${viewname}Props } from './${filename}'
+
+function view(partialProps: Partial<I${viewname}Props>) {
+    const props: I${viewname}Props = {
+        // @TODO Set default props.
+        ...partialProps
+    }
+    return Renderer.create(<${viewname} {...props} />).toJSON()
+}
+
+describe('<${viewname}/> in ${folder}', () => {
+    it('should be consistent with previous snapshot', () => {
+        expect(view({})).toMatchSnapshot()
+    })
+})
+`
 }

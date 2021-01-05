@@ -5,7 +5,7 @@
 	"repository": "https://github.com/tolokoban/toloframework-vscode-extension",
 	"displayName": "ToloFrameWork (TFW) VSCode Extension",
 	"description": "Tools to help working fast with React/Typescrip and TFW.",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"engines": {
 		"vscode": "^1.50.0"
 	},
@@ -13,6 +13,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onCommand:toloframework-vscode-extension.createFromTemplate",
 		"onCommand:toloframework-vscode-extension.createModule",
 		"onCommand:toloframework-vscode-extension.createView",
 		"onCommand:toloframework-vscode-extension.importFont",
@@ -20,8 +21,7 @@
 		"onCommand:toloframework-vscode-extension.compileTranslationYAML",
 		"onCommand:toloframework-vscode-extension.switchToCSS",
 		"onCommand:toloframework-vscode-extension.switchToJS",
-		"onCommand:toloframework-vscode-extension.switchToTS",
-		"onCommand:toloframework-vscode-extension.switchToTSX",
+		"onCommand:toloframework-vscode-extension.switchToTEST",
 		"onCommand:toloframework-vscode-extension.switchToJSON",
 		"onCommand:toloframework-vscode-extension.switchToYAML",
 		"onCommand:toloframework-vscode-extension.switchToFRAG",
@@ -30,6 +30,10 @@
 	"main": "./dist/extension",
 	"contributes": {
 		"commands": [
+			{
+				"command": "toloframework-vscode-extension.createFromTemplate",
+				"title": "[tfw] Create from Template"
+			},
 			{
 				"command": "toloframework-vscode-extension.createModule",
 				"title": "[tfw] Create new MODULE"
@@ -71,12 +75,8 @@
 				"title": "[tfw] Switch to YAML"
 			},
 			{
-				"command": "toloframework-vscode-extension.switchToTS",
-				"title": "[tfw] Switch to TS"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToTSX",
-				"title": "[tfw] Switch to TSX"
+				"command": "toloframework-vscode-extension.switchToTEST",
+				"title": "[tfw] Switch to TEST"
 			},
 			{
 				"command": "toloframework-vscode-extension.switchToFRAG",
@@ -88,6 +88,12 @@
 			}
 		],
 		"keybindings": [
+			{
+				"command": "toloframework-vscode-extension.createFromTemplate",
+				"key": "ctrl+f12 shift-t",
+				"mac": "cmd+f12 shift-t",
+				"when": "editorTextFocus"
+			},
 			{
 				"command": "toloframework-vscode-extension.createModule",
 				"key": "ctrl+f12 shift-m",
@@ -137,15 +143,9 @@
 				"when": "editorTextFocus"
 			},
 			{
-				"command": "toloframework-vscode-extension.switchToTS",
+				"command": "toloframework-vscode-extension.switchToTEST",
 				"key": "ctrl+f12 t",
 				"mac": "cmd+f12 t",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToTSX",
-				"key": "ctrl+f12 x",
-				"mac": "cmd+f12 x",
 				"when": "editorTextFocus"
 			},
 			{
@@ -163,6 +163,7 @@
 		]
 	},
 	"scripts": {
+        "publish": "vsce publish",
 		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",
 		"start": "webpack --mode development --watch",

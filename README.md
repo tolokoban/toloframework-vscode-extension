@@ -25,8 +25,8 @@ The first existing file is opened. But if no file is found, the first
 extension is used and a file is created.
 
 * __Switch to CSS__ (`C+F12 C`): css.
-* __Switch to JS__ (`C+F12 J`): js, jsx, ts, tsx.
-* __Switch to TS__ (`C+F12 T`): ts, tsx, js, jsx.
+* __Switch to TS/JS__ (`C+F12 J`): ts, tsx, js, jsx.
+* __Switch to TEST/SPEC__ (`C+F12 T`): test.ts, spec.ts, test.tsx, spec.tsx, test.js, spec.js, test.jsx.
 * __Switch to TSX__ (`C+F12 X`): tsx, jsx, ts, js.
 * __Switch to YAML__ (`C+F12 Y`): yaml, yml, json, jsn.
 * __Switch to JSON__ (`C+F12 N`): json, jsn, yaml, yml.
@@ -42,6 +42,13 @@ All the fonts will also be loaded locally.
 You can generate a font URL by using
 [Google Fonts](https://fonts.google.com).
 
+### Creating files/folders from Templates
+
+You can define your own templates in `templates/` folder at the root of your project (where `package.json` is).
+Each template must have its own subfolder and contain at least the file `@index.json5`.
+
+
+
 ## Requirements
 
 No requirements.
@@ -55,6 +62,15 @@ No settings.
 No known issues.
 
 ## Release Notes
+
+### 0.7.0
+
+`Ctrl-F12 T` switches to test/spec instead of Typescript.
+You can switch to Typescript with `Ctrl-F12 J`.
+
+### 0.4.0
+
+Added templates.
 
 ### 0.3.0
 
