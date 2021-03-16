@@ -6,7 +6,6 @@ import Inputs from '../inputs'
 import TplView from './tpl/view'
 import TplStyle from './tpl/style'
 import TplTester from './tpl/tester'
-import TplContainer from './tpl/container'
 
 export default {
     exec
@@ -41,12 +40,10 @@ async function exec() {
     }
 
     const save = writeFile.bind(null, destinationFolder)
-    save("index.ts", `export { default } from './${viewName}'\n// export { default } from './${viewName}.container'\n`)
-    save(`${viewName}.yaml`, `en:\n    ok: OK\nfr:\n    ok: Valider\n`)
+    save("index.ts", `export { default } from './${viewName}'\n`)
     save(`${viewName}.tsx`, TplView(viewName, relativeFolder))
     save(`${viewName}.css`, TplStyle(viewName, relativeFolder))
     save(`${viewName}.test.tsx`, TplTester(viewName, relativeFolder))
-    save(`${viewName}.container.tsx`, TplContainer(viewName, relativeFolder))
 
     const fileToOpen = Path.resolve(destinationFolder, `${viewName}.tsx`)
     await Util.openFileInEditor(fileToOpen)

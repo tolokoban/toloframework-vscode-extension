@@ -7,31 +7,27 @@ export default function(filename: string, folder: string) {
     }-${viewname}`
 
     return `import * as React from "react"
-import Tfw from 'tfw'
 
 import './${filename}.css'
 
-// const _ = Tfw.Intl.make(require('./${filename}.json'))
 
-export interface I${viewname}Props {
+export interface ${viewname}Props {
     className?: string
 }
 
-// tslint:disable-next-line: no-empty-interface
-interface I${viewname}State {}
+export default function(props: ${viewname}Props) {
+    return <div className={getClassNames(props)}>
+    </div>
+}
 
-export default class ${viewname} extends React.Component<I${viewname}Props, I${viewname}State> {
-    state: I${viewname}State = {}
 
-    render() {
-        const classNames = ['custom', '${className}']
-        if (typeof this.props.className === 'string') {
-            classNames.push(this.props.className)
-        }
-
-        return <div className={classNames.join(" ")}>
-        </div>
+function getClassNames(props: ${viewname}Props): string {
+    const classNames = ['custom', '${className}']
+    if (typeof props.className === 'string') {
+        classNames.push(props.className)
     }
+
+    return classNames.join(' ')
 }
 `
 }

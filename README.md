@@ -63,6 +63,11 @@ No known issues.
 
 ## Release Notes
 
+### 0.8.0
+
+CSS switch can now go to SCSS files.
+Simplified React View, more hook oriented.
+
 ### 0.7.0
 
 `Ctrl-F12 T` switches to test/spec instead of Typescript.

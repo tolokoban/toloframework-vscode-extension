@@ -118,10 +118,10 @@ export function deactivate() { }
 const EXTENSION_FALLBACKS: { [key: string]: string[] } = {
     js: ["ts", "tsx", "js", "jsx"],
     json: ["json", "jsn", "yaml", "yml"],
-    yaml: ["yaml", "yml", "json", "jsn"]
+    yaml: ["yaml", "yml", "json", "jsn"],
+    css: ['css', 'scss']
 }
 async function switchTo(extension: string, viewColumn: number) {
-    console.log("[switchTo()] extension = ", extension) // @FIXME: Remove this line written on 2021-01-05 at 11:34
     const activeEditor = VSC.window.activeTextEditor
     if (!activeEditor) {
         VSC.window.showErrorMessage("No active text editor!")
@@ -129,7 +129,6 @@ async function switchTo(extension: string, viewColumn: number) {
     }
 
     const extensions: string[] = getExtensionsToCheck(extension, activeEditor)
-    console.log("[switchTo()] extensions = ", extensions) // @FIXME: Remove this line written on 2021-01-05 at 11:36
     if (await openFileIfExists(extensions, viewColumn, activeEditor)) return
 
     // File does not exist.
