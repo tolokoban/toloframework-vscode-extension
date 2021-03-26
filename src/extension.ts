@@ -7,6 +7,8 @@ import Fonts from './fonts'
 import Module from './module'
 import Template from './template'
 import Translation from './translation'
+import Dependencies from './dependencies'
+
 
 // this method is called when your extension is activated
 export function activate(context: VSC.ExtensionContext) {
@@ -34,6 +36,13 @@ export function activate(context: VSC.ExtensionContext) {
         )
         context.subscriptions.push(disposable)
     }
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.generateDependencyGraph",
+            Dependencies.generateGraph
+        )
+    )
 
     context.subscriptions.push(
         VSC.commands.registerCommand(
@@ -119,7 +128,7 @@ const EXTENSION_FALLBACKS: { [key: string]: string[] } = {
     js: ["ts", "tsx", "js", "jsx"],
     json: ["json", "jsn", "yaml", "yml"],
     yaml: ["yaml", "yml", "json", "jsn"],
-    css: ['css', 'scss']
+    css: ['css', 'scss', 'module.scss']
 }
 async function switchTo(extension: string, viewColumn: number) {
     const activeEditor = VSC.window.activeTextEditor

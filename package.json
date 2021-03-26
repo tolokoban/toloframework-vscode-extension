@@ -25,7 +25,8 @@
 		"onCommand:toloframework-vscode-extension.switchToJSON",
 		"onCommand:toloframework-vscode-extension.switchToYAML",
 		"onCommand:toloframework-vscode-extension.switchToFRAG",
-		"onCommand:toloframework-vscode-extension.switchToVERT"
+		"onCommand:toloframework-vscode-extension.switchToVERT",
+		"onCommand:toloframework-vscode-extension.generateDependencyGraph"
 	],
 	"main": "./dist/extension",
 	"contributes": {
@@ -85,8 +86,27 @@
 			{
 				"command": "toloframework-vscode-extension.switchToVERT",
 				"title": "[tfw] Switch to VERT"
+			},
+			{
+				"command": "toloframework-vscode-extension.generateDependencyGraph",
+				"title": "[tfw] Dependencies Graph",
+				"category": "Diagrams"
 			}
 		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "toloframework-vscode-extension.generateDependencyGraph"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "toloframework-vscode-extension.generateDependencyGraph",
+					"when": "never"
+				}
+			]
+		},
 		"keybindings": [
 			{
 				"command": "toloframework-vscode-extension.createFromTemplate",
@@ -163,7 +183,7 @@
 		]
 	},
 	"scripts": {
-        "publish": "vsce publish",
+		"publish": "vsce publish",
 		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",
 		"start": "webpack --mode development --watch",
@@ -186,12 +206,13 @@
 		"mocha": "^8.1.3",
 		"ts-loader": "^8.0.4",
 		"typescript": "^4.0.2",
-		"vscode-test": "^1.4.0",
+		"vscode-test": "^1.5.1",
 		"webpack": "^4.44.2",
 		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
 		"@types/node-fetch": "^2.5.7",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"typescript-parser": "^2.6.1"
 	}
 }

@@ -2,22 +2,29 @@
 import * as X from 'vscode'
 import FS = require("fs")
 import Path = require("path")
+import ChildProcess = require("child_process")
 
 export default {
     changeExtension,
+    execCommandAsync,
     exists,
     fileNameToModuleName,
     findFilenameInAncestors,
     getBasename,
     getDirectory,
     getSourceFolder,
+    hasExtension,
+    isDir,
     isKebabCase,
     kebabCaseToLowerPascalCase,
     kebabCaseToPascalCase,
+    listFilesAndSubFolders,
     makeRelativeToSource,
     openFileInEditor,
     openTextDocument,
+    readTextFile,
     removeExtension,
+    stripComments,
     writeTextFile
 }
 
@@ -86,6 +93,13 @@ function writeTextFile(filename: string, content: string) {
     FS.writeFileSync(filename, content)
 }
 
+function readTextFile(filename: string): string {
+    if (!FS.existsSync(filename)) return ""
+
+    const content = FS.readFileSync(filename)
+    return content ? content.toString() : ''
+}
+
 /**
  * Find a `filename` in the `startingPath`.
  * If not found, try in the parent directory.
@@ -115,12 +129,16 @@ function findFilenameInAncestors(
 
 /**
  * Look for the nearest "package.json" file in the parents
- * of the current opened file, on in the children of the current
+ * of the current open file, or in the children of the current
  * workspace.
+ * If `path` is defined, start looking from this path.
+ * 
  * Then, return the "src" folder that lies in the same directory
  * tham "package.json".
  */
-function getSourceFolder(): string | null {
+function getSourceFolder(path?: string): string | null {
+    if (path) return getSourceFolderFromPath(path)
+
     const editor = X.window.activeTextEditor
     if (editor) return getSourceFolderFromActiveTextEditor(editor)
     return null
@@ -128,6 +146,10 @@ function getSourceFolder(): string | null {
 
 function getSourceFolderFromActiveTextEditor(editor: X.TextEditor): string | null {
     const path = editor.document.fileName
+    return getSourceFolderFromPath(path)
+}
+
+function getSourceFolderFromPath(path: string): string | null {
     const filename = "package.json"
     const startingPath = Path.dirname(path)
     const packagePath = findFilenameInAncestors(filename, startingPath)
@@ -165,4 +187,137 @@ function kebabCaseToPascalCase(name: string): string {
 function kebabCaseToLowerPascalCase(name: string): string {
     const pascal = kebabCaseToPascalCase(name)
     return pascal.charAt(0).toLowerCase() + pascal.substr(1)
+}
+
+
+function isDir(path: string): boolean {
+    if (!FS.existsSync(path)) return false
+
+    const stat = FS.statSync(path)
+    return stat.isDirectory()
+}
+
+export interface FilesAndFolders {
+    files: string[]
+    folders: string[]
+}
+
+function listFilesAndSubFolders(sourceFolder: string): FilesAndFolders {
+    const result: FilesAndFolders = {
+        files: [], folders: []
+    }
+    if (!isDir(sourceFolder)) return result
+
+    const dir = FS.readdirSync(sourceFolder)
+    for (const name of dir) {
+        if (name === '.' || name === '..') continue
+
+        const path = Path.resolve(sourceFolder, name)
+        if (isDir(path)) result.folders.push(path)
+        else result.files.push(path)
+    }
+
+    return result
+}
+
+function hasExtension(filename: string, ...extensions: string[]): boolean {
+    for (const ext of extensions) {
+        if (filename.endsWith(`.${ext}`)) return true
+
+    }
+    return false
+}
+
+/**
+ * Execute a command and throw an exception in case of failure.
+ * 
+ * @param command Shell command to execute
+ * @returns stdout of this command (if success).
+ */
+async function execCommandAsync(command: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        ChildProcess.exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(`${error}\n\n${stdout}`.trim())
+                return
+
+            }
+            resolve(stdout)
+        })
+    })
+}
+
+
+function stripComments(content: string) {
+    let output = ''
+    let mode = ''
+    let start = 0
+    for (let i = 0; i < content.length; i++) {
+        const c = content.charAt(i)
+        switch (mode) {
+            case '':
+                if ("\"'`\\".includes(c)) {
+                    mode = c
+                }
+                else if (c === '/') {
+                    mode = '/'
+                    output = output + content.substring(start, i)
+                    start = i
+                }
+                break
+            case '/':
+                if (c === '/') {
+                    mode = '//'
+                }
+                else if (c === '*') {
+                    mode = '/*'
+                }
+                else {
+                    i = i - 1
+                    mode = ''
+                }
+                break
+            case '//':
+                if (c === '\n') {
+                    start = i
+                    mode = ''
+                }
+                break
+            case '/*':
+                if (c === '*') {
+                    mode = '/**'
+                }
+                break
+            case '/**':
+                if (c === '/') {
+                    start = i + 1
+                    mode = ''
+                } else {
+                    mode = '/*'
+                }
+                break
+            case '\\':
+                mode = ''
+                break
+            case '"':
+                if (c === '"') mode = ''
+                break
+            case '\\"':
+                mode = '"'
+                break
+            case "'":
+                if (c === "'") mode = ''
+                break
+            case "\\'":
+                mode = "'"
+                break
+            case "'":
+                if (c === "'") mode = ''
+                break
+            case "\\`":
+                mode = "`"
+                break
+        }
+    }
+    return `${output}${content.substr(start)}`
 }
