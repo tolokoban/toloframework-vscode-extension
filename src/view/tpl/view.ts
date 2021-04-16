@@ -15,7 +15,7 @@ export interface ${viewname}Props {
     className?: string
 }
 
-export default function(props: ${viewname}Props) {
+export default function ${viewname}(props: ${viewname}Props) {
     return <div className={getClassNames(props)}>
     </div>
 }

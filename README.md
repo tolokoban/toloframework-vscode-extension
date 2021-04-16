@@ -63,6 +63,10 @@ No known issues.
 
 ## Release Notes
 
+### 0.9.1
+
+Added export name for new View.
+
 ### 0.9.0
 
 Dependency graph.
