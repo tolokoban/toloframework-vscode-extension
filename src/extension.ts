@@ -1,14 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // tslint:disable-next-line: no-implicit-dependencies
-import * as VSC from 'vscode'
-import Util from './util'
-import View from './view'
-import Fonts from './fonts'
-import Module from './module'
-import Template from './template'
-import Translation from './translation'
-import Dependencies from './dependencies'
-
+import * as VSC from "vscode"
+import Util from "./util"
+import View from "./view"
+import Fonts from "./fonts"
+import Module from "./module"
+import Template from "./template"
+import Translation from "./translation/translation"
+import Dependencies from "./dependencies"
 
 // this method is called when your extension is activated
 export function activate(context: VSC.ExtensionContext) {
@@ -30,9 +29,8 @@ export function activate(context: VSC.ExtensionContext) {
     for (const action of actions) {
         const [extension, viewColumn] = action
         const id = `toloframework-vscode-extension.switchTo${extension.toUpperCase()}`
-        const disposable = VSC.commands.registerCommand(
-            id,
-            () => switchTo(extension, viewColumn)
+        const disposable = VSC.commands.registerCommand(id, () =>
+            switchTo(extension, viewColumn)
         )
         context.subscriptions.push(disposable)
     }
@@ -48,6 +46,13 @@ export function activate(context: VSC.ExtensionContext) {
         VSC.commands.registerCommand(
             "toloframework-vscode-extension.compileTranslationYAML",
             Translation.compileYAML
+        )
+    )
+
+    context.subscriptions.push(
+        VSC.commands.registerCommand(
+            "toloframework-vscode-extension.translation",
+            Translation.translateSelection
         )
     )
 
@@ -81,11 +86,11 @@ export function activate(context: VSC.ExtensionContext) {
 
     context.subscriptions.push(
         VSC.commands.registerCommand(
-            'toloframework-vscode-extension.help',
+            "toloframework-vscode-extension.help",
             () => {
                 const panel = VSC.window.createWebviewPanel(
-                    'help',
-                    'TFW Documentation',
+                    "help",
+                    "TFW Documentation",
                     VSC.ViewColumn.Beside,
                     {
                         enableScripts: true,
@@ -121,14 +126,13 @@ export function activate(context: VSC.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 // tslint:disable-next-line: no-empty
-export function deactivate() { }
-
+export function deactivate() {}
 
 const EXTENSION_FALLBACKS: { [key: string]: string[] } = {
     js: ["ts", "tsx", "js", "jsx"],
     json: ["json", "jsn", "yaml", "yml"],
     yaml: ["yaml", "yml", "json", "jsn"],
-    css: ['css', 'scss', 'module.scss']
+    css: ["css", "scss", "module.scss"]
 }
 async function switchTo(extension: string, viewColumn: number) {
     const activeEditor = VSC.window.activeTextEditor
@@ -155,9 +159,7 @@ async function switchTo(extension: string, viewColumn: number) {
     if (doc !== null) {
         VSC.window.showTextDocument(doc, { viewColumn })
     } else {
-        VSC.window.showErrorMessage(
-            `File not found:  \n\`${filename}\``
-        )
+        VSC.window.showErrorMessage(`File not found:  \n\`${filename}\``)
     }
 }
 
@@ -182,8 +184,11 @@ async function openFileIfExists(
     return false
 }
 
-function getExtensionsToCheck(extension: string, activeEditor: VSC.TextEditor): string[] {
-    if (extension !== 'test') {
+function getExtensionsToCheck(
+    extension: string,
+    activeEditor: VSC.TextEditor
+): string[] {
+    if (extension !== "test") {
         return EXTENSION_FALLBACKS[extension] ?? [extension]
     }
 
@@ -211,9 +216,12 @@ function getInitialContent(extension: string, originFileName: string) {
         return getInitialContentTest(originFileName)
     }
     switch (extension) {
-        case "yaml": return getInitialContentYAML(originFileName)
-        case "frag": return getInitialContentFRAG(originFileName)
-        case "vert": return getInitialContentVERT(originFileName)
+        case "yaml":
+            return getInitialContentYAML(originFileName)
+        case "frag":
+            return getInitialContentFRAG(originFileName)
+        case "vert":
+            return getInitialContentVERT(originFileName)
     }
     return ""
 }
@@ -245,7 +253,8 @@ function getInitialContentYAML(originFileName: string) {
 }
 
 function getInitialContentTest(originFileName: string) {
-    if (originFileName.endsWith("x")) return getInitialContentTestView(originFileName)
+    if (originFileName.endsWith("x"))
+        return getInitialContentTestView(originFileName)
 
     const modName = Util.fileNameToModuleName(originFileName)
     const filename = Util.removeExtension(Util.getBasename(originFileName))
@@ -274,7 +283,9 @@ function getInitialContentTestView(originFileName: string) {
 // @see https://jestjs.io/docs/en/snapshot-testing
 //
 // If a test failed because you intended to improve the component, just call
-// jest --updateSnapshot testNamePattern "${Util.makeRelativeToSource(originFileName)}"
+// jest --updateSnapshot testNamePattern "${Util.makeRelativeToSource(
+        originFileName
+    )}"
 
 import React from 'react'
 import Renderer from 'react-test-renderer'

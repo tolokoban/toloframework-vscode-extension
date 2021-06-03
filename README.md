@@ -63,6 +63,10 @@ No known issues.
 
 ## Release Notes
 
+### 0.10.0
+
+Added string translation. Select a text and press `C-F12 S-i`.
+
 ### 0.9.1
 
 Added export name for new View.

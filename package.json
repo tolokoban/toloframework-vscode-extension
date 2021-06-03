@@ -1,218 +1,229 @@
 {
-	"name": "toloframework-vscode-extension",
-	"publisher": "tolokoban",
-	"author": "tolokoban",
-	"repository": "https://github.com/tolokoban/toloframework-vscode-extension",
-	"displayName": "ToloFrameWork (TFW) VSCode Extension",
-	"description": "Tools to help working fast with React/Typescrip and TFW.",
-	"version": "0.9.1",
-	"engines": {
-		"vscode": "^1.54.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:toloframework-vscode-extension.createFromTemplate",
-		"onCommand:toloframework-vscode-extension.createModule",
-		"onCommand:toloframework-vscode-extension.createView",
-		"onCommand:toloframework-vscode-extension.importFont",
-		"onCommand:toloframework-vscode-extension.help",
-		"onCommand:toloframework-vscode-extension.compileTranslationYAML",
-		"onCommand:toloframework-vscode-extension.switchToCSS",
-		"onCommand:toloframework-vscode-extension.switchToJS",
-		"onCommand:toloframework-vscode-extension.switchToTEST",
-		"onCommand:toloframework-vscode-extension.switchToJSON",
-		"onCommand:toloframework-vscode-extension.switchToYAML",
-		"onCommand:toloframework-vscode-extension.switchToFRAG",
-		"onCommand:toloframework-vscode-extension.switchToVERT",
-		"onCommand:toloframework-vscode-extension.generateDependencyGraph"
-	],
-	"main": "./dist/extension",
-	"contributes": {
-		"commands": [
-			{
-				"command": "toloframework-vscode-extension.createFromTemplate",
-				"title": "[tfw] Create from Template"
-			},
-			{
-				"command": "toloframework-vscode-extension.createModule",
-				"title": "[tfw] Create new MODULE"
-			},
-			{
-				"command": "toloframework-vscode-extension.createView",
-				"title": "[tfw] Create new VIEW"
-			},
-			{
-				"command": "toloframework-vscode-extension.importFont",
-				"title": "[tfw] Load font locally"
-			},
-			{
-				"command": "toloframework-vscode-extension.help",
-				"title": "[tfw] Show documentation"
-			},
-			{
-				"command": "toloframework-vscode-extension.compileTranslationYAML",
-				"title": "[tfw] Compile YAML translations from current file"
-			},
-			{
-				"command": "toloframework-vscode-extension.importFont",
-				"title": "[tfw] Import font files"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToCSS",
-				"title": "[tfw] Switch to CSS"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToJS",
-				"title": "[tfw] Switch to JS"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToJSON",
-				"title": "[tfw] Switch to JSON"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToYAML",
-				"title": "[tfw] Switch to YAML"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToTEST",
-				"title": "[tfw] Switch to TEST"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToFRAG",
-				"title": "[tfw] Switch to FRAG"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToVERT",
-				"title": "[tfw] Switch to VERT"
-			},
-			{
-				"command": "toloframework-vscode-extension.generateDependencyGraph",
-				"title": "[tfw] Dependencies Graph",
-				"category": "Diagrams"
-			}
-		],
-		"menus": {
-			"explorer/context": [
-				{
-					"when": "explorerResourceIsFolder",
-					"command": "toloframework-vscode-extension.generateDependencyGraph"
-				}
-			],
-			"commandPalette": [
-				{
-					"command": "toloframework-vscode-extension.generateDependencyGraph",
-					"when": "never"
-				}
-			]
-		},
-		"keybindings": [
-			{
-				"command": "toloframework-vscode-extension.createFromTemplate",
-				"key": "ctrl+f12 shift-t",
-				"mac": "cmd+f12 shift-t",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.createModule",
-				"key": "ctrl+f12 shift-m",
-				"mac": "cmd+f12 shift-m",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.createView",
-				"key": "ctrl+f12 shift-v",
-				"mac": "cmd+f12 shift-v",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.help",
-				"key": "ctrl+f12 f1",
-				"mac": "cmd+f12 f1",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.compileTranslationYAML",
-				"key": "ctrl+f12 shift+y",
-				"mac": "cmd+f12 shift+y",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToCSS",
-				"key": "ctrl+f12 c",
-				"mac": "cmd+f12 c",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToJS",
-				"key": "ctrl+f12 j",
-				"mac": "cmd+f12 j",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToJSON",
-				"key": "ctrl+f12 n",
-				"mac": "cmd+f12 n",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToYAML",
-				"key": "ctrl+f12 y",
-				"mac": "cmd+f12 y",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToTEST",
-				"key": "ctrl+f12 t",
-				"mac": "cmd+f12 t",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToFRAG",
-				"key": "ctrl+f12 f",
-				"mac": "cmd+f12 f",
-				"when": "editorTextFocus"
-			},
-			{
-				"command": "toloframework-vscode-extension.switchToVERT",
-				"key": "ctrl+f12 v",
-				"mac": "cmd+f12 v",
-				"when": "editorTextFocus"
-			}
-		]
-	},
-	"scripts": {
-		"publish": "vsce publish",
-		"vscode:prepublish": "webpack --mode production",
-		"webpack": "webpack --mode development",
-		"start": "webpack --mode development --watch",
-		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.0",
-		"@types/node": "^14.11.2",
-		"@types/vscode": "^1.49.0",
-		"@types/yaml": "^1.9.7",
-		"@typescript-eslint/eslint-plugin": "^4.1.1",
-		"@typescript-eslint/parser": "^4.1.1",
-		"eslint": "^7.9.0",
-		"glob": "^7.1.6",
-		"mocha": "^8.1.3",
-		"ts-loader": "^8.0.4",
-		"typescript": "^4.0.2",
-		"vscode-test": "^1.5.1",
-		"webpack": "^4.44.2",
-		"webpack-cli": "^3.3.12"
-	},
-	"dependencies": {
-		"@types/node-fetch": "^2.5.7",
-		"node-fetch": "^2.6.1",
-		"typescript-parser": "^2.6.1"
-	}
+    "name": "toloframework-vscode-extension",
+    "publisher": "tolokoban",
+    "author": "tolokoban",
+    "repository": "https://github.com/tolokoban/toloframework-vscode-extension",
+    "displayName": "ToloFrameWork (TFW) VSCode Extension",
+    "description": "Tools to help working fast with React/Typescrip and TFW.",
+    "version": "0.10.0",
+    "engines": {
+        "vscode": "^1.54.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:toloframework-vscode-extension.createFromTemplate",
+        "onCommand:toloframework-vscode-extension.createModule",
+        "onCommand:toloframework-vscode-extension.createView",
+        "onCommand:toloframework-vscode-extension.importFont",
+        "onCommand:toloframework-vscode-extension.help",
+        "onCommand:toloframework-vscode-extension.compileTranslationYAML",
+        "onCommand:toloframework-vscode-extension.switchToCSS",
+        "onCommand:toloframework-vscode-extension.switchToJS",
+        "onCommand:toloframework-vscode-extension.switchToTEST",
+        "onCommand:toloframework-vscode-extension.switchToJSON",
+        "onCommand:toloframework-vscode-extension.switchToYAML",
+        "onCommand:toloframework-vscode-extension.switchToFRAG",
+        "onCommand:toloframework-vscode-extension.switchToVERT",
+        "onCommand:toloframework-vscode-extension.translation",
+        "onCommand:toloframework-vscode-extension.generateDependencyGraph"
+    ],
+    "main": "./dist/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "toloframework-vscode-extension.translation",
+                "title": "[tfw] Translate selected text"
+            },
+            {
+                "command": "toloframework-vscode-extension.createFromTemplate",
+                "title": "[tfw] Create from Template"
+            },
+            {
+                "command": "toloframework-vscode-extension.createModule",
+                "title": "[tfw] Create new MODULE"
+            },
+            {
+                "command": "toloframework-vscode-extension.createView",
+                "title": "[tfw] Create new VIEW"
+            },
+            {
+                "command": "toloframework-vscode-extension.importFont",
+                "title": "[tfw] Load font locally"
+            },
+            {
+                "command": "toloframework-vscode-extension.help",
+                "title": "[tfw] Show documentation"
+            },
+            {
+                "command": "toloframework-vscode-extension.compileTranslationYAML",
+                "title": "[tfw] Compile YAML translations from current file"
+            },
+            {
+                "command": "toloframework-vscode-extension.importFont",
+                "title": "[tfw] Import font files"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToCSS",
+                "title": "[tfw] Switch to CSS"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToJS",
+                "title": "[tfw] Switch to JS"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToJSON",
+                "title": "[tfw] Switch to JSON"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToYAML",
+                "title": "[tfw] Switch to YAML"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToTEST",
+                "title": "[tfw] Switch to TEST"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToFRAG",
+                "title": "[tfw] Switch to FRAG"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToVERT",
+                "title": "[tfw] Switch to VERT"
+            },
+            {
+                "command": "toloframework-vscode-extension.generateDependencyGraph",
+                "title": "[tfw] Dependencies Graph",
+                "category": "Diagrams"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "toloframework-vscode-extension.generateDependencyGraph"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "toloframework-vscode-extension.generateDependencyGraph",
+                    "when": "never"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "toloframework-vscode-extension.translation",
+                "key": "ctrl+f12 shift-i",
+                "mac": "cmd+f12 shift-i",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.createFromTemplate",
+                "key": "ctrl+f12 shift-t",
+                "mac": "cmd+f12 shift-t",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.createModule",
+                "key": "ctrl+f12 shift-m",
+                "mac": "cmd+f12 shift-m",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.createView",
+                "key": "ctrl+f12 shift-v",
+                "mac": "cmd+f12 shift-v",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.help",
+                "key": "ctrl+f12 f1",
+                "mac": "cmd+f12 f1",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.compileTranslationYAML",
+                "key": "ctrl+f12 shift+y",
+                "mac": "cmd+f12 shift+y",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToCSS",
+                "key": "ctrl+f12 c",
+                "mac": "cmd+f12 c",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToJS",
+                "key": "ctrl+f12 j",
+                "mac": "cmd+f12 j",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToJSON",
+                "key": "ctrl+f12 n",
+                "mac": "cmd+f12 n",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToYAML",
+                "key": "ctrl+f12 y",
+                "mac": "cmd+f12 y",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToTEST",
+                "key": "ctrl+f12 t",
+                "mac": "cmd+f12 t",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToFRAG",
+                "key": "ctrl+f12 f",
+                "mac": "cmd+f12 f",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "toloframework-vscode-extension.switchToVERT",
+                "key": "ctrl+f12 v",
+                "mac": "cmd+f12 v",
+                "when": "editorTextFocus"
+            }
+        ]
+    },
+    "scripts": {
+        "publish": "vsce publish",
+        "vscode:prepublish": "webpack --mode production",
+        "webpack": "webpack --mode development",
+        "start": "webpack --mode development --watch",
+        "compile": "tsc -p ./",
+        "lint": "eslint src --ext ts",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.0.0",
+        "@types/node": "^14.11.2",
+        "@types/vscode": "^1.49.0",
+        "@types/yaml": "^1.9.7",
+        "@typescript-eslint/eslint-plugin": "^4.1.1",
+        "@typescript-eslint/parser": "^4.1.1",
+        "eslint": "^7.9.0",
+        "glob": "^7.1.6",
+        "mocha": "^8.1.3",
+        "ts-loader": "^8.0.4",
+        "typescript": "^4.0.2",
+        "vscode-test": "^1.5.1",
+        "webpack": "^4.44.2",
+        "webpack-cli": "^3.3.12"
+    },
+    "dependencies": {
+        "@types/node-fetch": "^2.5.7",
+        "node-fetch": "^2.6.1",
+        "typescript-parser": "^2.6.1"
+    }
 }

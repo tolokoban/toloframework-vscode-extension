@@ -1,8 +1,9 @@
 // tslint:disable-next-line: no-implicit-dependencies
-import * as X from 'vscode'
+import * as VSC from "vscode"
 import FS = require("fs")
 import Path = require("path")
 import ChildProcess = require("child_process")
+import { getVSCodeDownloadUrl } from "vscode-test/out/util"
 
 export default {
     changeExtension,
@@ -12,6 +13,7 @@ export default {
     findFilenameInAncestors,
     getBasename,
     getDirectory,
+    getRelativeImportPath,
     getSourceFolder,
     hasExtension,
     isDir,
@@ -47,30 +49,25 @@ function fileNameToModuleName(filename: string): string {
     return kebabCaseToPascalCase(removeExtension(getBasename(filename)))
 }
 
-async function openTextDocument(filename: string):
-    Promise<X.TextDocument | null> {
+async function openTextDocument(
+    filename: string
+): Promise<VSC.TextDocument | null> {
     return new Promise((resolve, reject) => {
         if (!exists(filename)) {
             resolve(null)
             return
         }
-        X.workspace.openTextDocument(filename).then(
-            resolve,
-            reject
-        )
+        VSC.workspace.openTextDocument(filename).then(resolve, reject)
     })
 }
 
 async function openFileInEditor(
     filename: string,
-    viewColumn: X.ViewColumn = X.ViewColumn.Active
+    viewColumn: VSC.ViewColumn = VSC.ViewColumn.Active
 ): Promise<boolean> {
     const doc = await openTextDocument(filename)
     if (!doc) return false
-    X.window.showTextDocument(
-        doc,
-        viewColumn.valueOf()
-    )
+    VSC.window.showTextDocument(doc, viewColumn.valueOf())
     return true
 }
 
@@ -97,7 +94,7 @@ function readTextFile(filename: string): string {
     if (!FS.existsSync(filename)) return ""
 
     const content = FS.readFileSync(filename)
-    return content ? content.toString() : ''
+    return content ? content.toString() : ""
 }
 
 /**
@@ -132,19 +129,36 @@ function findFilenameInAncestors(
  * of the current open file, or in the children of the current
  * workspace.
  * If `path` is defined, start looking from this path.
- * 
+ *
  * Then, return the "src" folder that lies in the same directory
- * tham "package.json".
+ * as "package.json".
  */
 function getSourceFolder(path?: string): string | null {
     if (path) return getSourceFolderFromPath(path)
 
-    const editor = X.window.activeTextEditor
+    const editor = VSC.window.activeTextEditor
     if (editor) return getSourceFolderFromActiveTextEditor(editor)
     return null
 }
 
-function getSourceFolderFromActiveTextEditor(editor: X.TextEditor): string | null {
+/**
+ * @param module Module path, relative to `src/`.
+ * @param path Path of the file that want to import a module.
+ * If not defined, use the active editor filename.
+ */
+function getRelativeImportPath(module: string, path?: string): string {
+    path ??= VSC.window.activeTextEditor?.document.fileName
+    path ??= "."
+    if (!isDir(path)) path = Path.dirname(path)
+    return Path.relative(
+        path,
+        Path.join(getSourceFolder() ?? ".", "./translate")
+    )
+}
+
+function getSourceFolderFromActiveTextEditor(
+    editor: VSC.TextEditor
+): string | null {
     const path = editor.document.fileName
     return getSourceFolderFromPath(path)
 }
@@ -155,10 +169,7 @@ function getSourceFolderFromPath(path: string): string | null {
     const packagePath = findFilenameInAncestors(filename, startingPath)
     if (!packagePath) return null
 
-    const sourcePath = Path.resolve(
-        Path.dirname(packagePath),
-        "src"
-    )
+    const sourcePath = Path.resolve(Path.dirname(packagePath), "src")
     if (exists(sourcePath)) return sourcePath
     return Path.dirname(packagePath)
 }
@@ -168,18 +179,21 @@ function getSourceFolderFromPath(path: string): string | null {
  * @param path Absolute path
  */
 function makeRelativeToSource(path: string): string {
-    return Path.relative(getSourceFolder() ?? '/', path)
+    return Path.relative(getSourceFolder() ?? "/", path)
 }
 
 const RX_KEBAB_CASE = /^[a-z][a-z0-9]+(-[a-z0-9]+)*$/g
 
 function isKebabCase(input: string): string {
     RX_KEBAB_CASE.lastIndex = -1
-    return RX_KEBAB_CASE.test(input) ? "" : "Kebab case name expected (ex.: \"wonder-woman\")! Minimum length is 2."
+    return RX_KEBAB_CASE.test(input)
+        ? ""
+        : 'Kebab case name expected (ex.: "wonder-woman")! Minimum length is 2.'
 }
 
 function kebabCaseToPascalCase(name: string): string {
-    return name.split("-")
+    return name
+        .split("-")
         .map(x => `${x.charAt(0).toUpperCase()}${x.substr(1).toLowerCase()}`)
         .join("")
 }
@@ -188,7 +202,6 @@ function kebabCaseToLowerPascalCase(name: string): string {
     const pascal = kebabCaseToPascalCase(name)
     return pascal.charAt(0).toLowerCase() + pascal.substr(1)
 }
-
 
 function isDir(path: string): boolean {
     if (!FS.existsSync(path)) return false
@@ -204,13 +217,14 @@ export interface FilesAndFolders {
 
 function listFilesAndSubFolders(sourceFolder: string): FilesAndFolders {
     const result: FilesAndFolders = {
-        files: [], folders: []
+        files: [],
+        folders: []
     }
     if (!isDir(sourceFolder)) return result
 
     const dir = FS.readdirSync(sourceFolder)
     for (const name of dir) {
-        if (name === '.' || name === '..') continue
+        if (name === "." || name === "..") continue
 
         const path = Path.resolve(sourceFolder, name)
         if (isDir(path)) result.folders.push(path)
@@ -223,14 +237,13 @@ function listFilesAndSubFolders(sourceFolder: string): FilesAndFolders {
 function hasExtension(filename: string, ...extensions: string[]): boolean {
     for (const ext of extensions) {
         if (filename.endsWith(`.${ext}`)) return true
-
     }
     return false
 }
 
 /**
  * Execute a command and throw an exception in case of failure.
- * 
+ *
  * @param command Shell command to execute
  * @returns stdout of this command (if success).
  */
@@ -240,79 +253,74 @@ async function execCommandAsync(command: string): Promise<string> {
             if (error) {
                 reject(`${error}\n\n${stdout}`.trim())
                 return
-
             }
             resolve(stdout)
         })
     })
 }
 
-
 function stripComments(content: string) {
-    let output = ''
-    let mode = ''
+    let output = ""
+    let mode = ""
     let start = 0
     for (let i = 0; i < content.length; i++) {
         const c = content.charAt(i)
         switch (mode) {
-            case '':
+            case "":
                 if ("\"'`\\".includes(c)) {
                     mode = c
-                }
-                else if (c === '/') {
-                    mode = '/'
+                } else if (c === "/") {
+                    mode = "/"
                     output = output + content.substring(start, i)
                     start = i
                 }
                 break
-            case '/':
-                if (c === '/') {
-                    mode = '//'
-                }
-                else if (c === '*') {
-                    mode = '/*'
-                }
-                else {
-                    i = i - 1
-                    mode = ''
-                }
-                break
-            case '//':
-                if (c === '\n') {
-                    start = i
-                    mode = ''
-                }
-                break
-            case '/*':
-                if (c === '*') {
-                    mode = '/**'
-                }
-                break
-            case '/**':
-                if (c === '/') {
-                    start = i + 1
-                    mode = ''
+            case "/":
+                if (c === "/") {
+                    mode = "//"
+                } else if (c === "*") {
+                    mode = "/*"
                 } else {
-                    mode = '/*'
+                    i = i - 1
+                    mode = ""
                 }
                 break
-            case '\\':
-                mode = ''
+            case "//":
+                if (c === "\n") {
+                    start = i
+                    mode = ""
+                }
+                break
+            case "/*":
+                if (c === "*") {
+                    mode = "/**"
+                }
+                break
+            case "/**":
+                if (c === "/") {
+                    start = i + 1
+                    mode = ""
+                } else {
+                    mode = "/*"
+                }
+                break
+            case "\\":
+                mode = ""
                 break
             case '"':
-                if (c === '"') mode = ''
+                if (c === '"') mode = ""
                 break
             case '\\"':
                 mode = '"'
                 break
             case "'":
-                if (c === "'") mode = ''
+                if (c === "'") mode = ""
                 break
             case "\\'":
                 mode = "'"
                 break
             case "'":
-                if (c === "'") mode = ''
+                if (c === "'") mode = ""
                 break
             case "\\`":
                 mode = "`"
